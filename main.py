@@ -48,34 +48,54 @@ def k_means_clustering(k, coordinates: list[Coordinate]):
         # Decide class memberships
         for coordinate in coordinates:
             shortest_dist = float('inf')
-            cluster = -1
+            cluster_idx = -1
             for center_idx, center in enumerate(centers):
                 distance_to_center = coordinate.distanceTo(center)
                 if distance_to_center < shortest_dist:
                     shortest_dist = distance_to_center
-                    cluster = center_idx
-            clusters[cluster].append(coordinate)
+                    cluster_idx = center_idx
+            clusters[cluster_idx].append(coordinate)
 
         if clusters == old_clusters:
             break
         
         # Calculate new centers
-        for cluster, cluster_coords in clusters.items():
+        for cluster_idx, cluster_coords in clusters.items():
             x_sum = 0
             y_sum = 0
             for coord in cluster_coords:
                 x_sum += coord.get_x()
                 y_sum += coord.get_y()
-            centers[cluster] = Coordinate(x_sum / len(cluster_coords), y_sum / len(cluster_coords))
+            centers[cluster_idx] = Coordinate(x_sum / len(cluster_coords), y_sum / len(cluster_coords))
         old_clusters = clusters
     return centers, clusters
+
+def calculate_squared_error(centers, clusters):
+    objective = 0
+    for cluster_idx, cluster_coords in clusters.items():
+        cluster_center = centers[cluster_idx]
+        for coord in cluster_coords:
+            objective += (cluster_center.distanceTo(coord)**2)
+    return round(objective, 2)
 
 def main():
     # TODO: Input Handling
     coordinates = [Coordinate(1, 1), Coordinate(1, 2), Coordinate(2, 1), Coordinate(6, 6), Coordinate(6, 5), Coordinate(5,6)]
     distance_matrix = [[coordinate_A.distanceTo(coordinate_B) for coordinate_B in coordinates] for coordinate_A in coordinates]
     # TODO: Cluster for all 1 <= k <= 4
-    centers, clusters = k_means_clustering(2, coordinates)
+
+    # Run multiple trials with random starts 
+    centers_bsf = None
+    clusters_bsf = None
+    objective_function = float("inf")
+    for _ in range(10):
+        centers, clusters = k_means_clustering(2, coordinates)
+        score = calculate_squared_error(centers, clusters)
+        if score < objective_function:
+            objective_function = score
+            centers_bsf = centers
+            clusters_bsf = clusters
+    print(objective_function)
     # TODO: Route Finding
     # TODO: Output Handling
 
