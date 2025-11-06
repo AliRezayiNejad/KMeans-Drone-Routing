@@ -45,7 +45,7 @@ class Solution:
     
     def __str__(self) -> str:
         roman_nums = ["i", "ii", "iii", "iv"]
-        output = f"{self.num_drones})\tIf you use {self.num_drones} drone(s), the total route will be {self.total_route_len:.1f} meters\n"
+        output = f"\tIf you use {self.num_drones} drone(s), the total route will be {self.total_route_len:.1f} meters\n"
 
         for i in range(self.num_drones):
             output += f"\t{roman_nums[i]}.\tLanding Pad {i+1} "
