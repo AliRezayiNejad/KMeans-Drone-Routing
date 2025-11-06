@@ -46,7 +46,7 @@ def k_means_clustering(k, coordinates: list[Coordinate]):
             clusters[i] = []
         
         # Decide class memberships
-        for coordinate in coordinates:
+        for coordinate_idx, coordinate in enumerate(coordinates):
             shortest_dist = float('inf')
             cluster_idx = -1
             for center_idx, center in enumerate(centers):
@@ -54,7 +54,7 @@ def k_means_clustering(k, coordinates: list[Coordinate]):
                 if distance_to_center < shortest_dist:
                     shortest_dist = distance_to_center
                     cluster_idx = center_idx
-            clusters[cluster_idx].append(coordinate)
+            clusters[cluster_idx].append(coordinate_idx)
 
         if clusters == old_clusters:
             break
@@ -63,20 +63,49 @@ def k_means_clustering(k, coordinates: list[Coordinate]):
         for cluster_idx, cluster_coords in clusters.items():
             x_sum = 0
             y_sum = 0
-            for coord in cluster_coords:
-                x_sum += coord.get_x()
-                y_sum += coord.get_y()
+            for coordinate_idx in cluster_coords:
+                x_sum += coordinates[coordinate_idx].get_x()
+                y_sum += coordinates[coordinate_idx].get_y()
             centers[cluster_idx] = Coordinate(x_sum / len(cluster_coords), y_sum / len(cluster_coords))
         old_clusters = clusters
     return centers, clusters
 
-def calculate_squared_error(centers, clusters):
+def calculate_squared_error(centers, clusters, coordinate_list):
     objective = 0
     for cluster_idx, cluster_coords in clusters.items():
         cluster_center = centers[cluster_idx]
-        for coord in cluster_coords:
-            objective += (cluster_center.distanceTo(coord)**2)
+        for coordinate_idx in cluster_coords:
+            objective += (cluster_center.distanceTo(coordinate_list[coordinate_idx])**2)
     return round(objective, 2)
+
+def _find_nearest_neighbor(target: Coordinate, neighbors: list[int], visited: set[int], coordinate_list: list[Coordinate]):
+    nearest_neighbor = None
+    dist_bsf = float('inf')
+    for coord_idx in neighbors:
+        dist = target.distanceTo(coordinate_list[coord_idx])
+        if dist < dist_bsf and coord_idx not in visited:
+            dist_bsf = dist
+            nearest_neighbor = coord_idx
+    return nearest_neighbor, dist_bsf
+
+def _find_route(start, coordinate_indexes, coordinate_list):
+    first, _ = _find_nearest_neighbor(start, coordinate_indexes, set(), coordinate_list)
+    route = [first]
+    visited = set(route)
+    distance = 0
+    while len(visited) < len(coordinate_indexes):
+        nn, nn_dist = _find_nearest_neighbor(coordinate_list[route[-1]], coordinate_indexes, visited, coordinate_list)
+        distance += nn_dist
+        route.append(nn)
+        visited.add(nn)
+    return route, distance
+
+def find_routes(centers, clusters, coordinates):
+    results = []
+    for cluster_idx, cluster_coords in clusters.items():
+        route, distance = _find_route(centers[cluster_idx], cluster_coords, coordinates)
+        results.append((route, distance))
+    return results
 
 def main():
     # TODO: Input Handling
@@ -90,13 +119,16 @@ def main():
     objective_function = float("inf")
     for _ in range(10):
         centers, clusters = k_means_clustering(2, coordinates)
-        score = calculate_squared_error(centers, clusters)
+        score = calculate_squared_error(centers, clusters, coordinates)
         if score < objective_function:
             objective_function = score
             centers_bsf = centers
             clusters_bsf = clusters
     print(objective_function)
     # TODO: Route Finding
+    results = find_routes(centers, clusters, coordinates)
+    print(results)
+
     # TODO: Output Handling
 
 
