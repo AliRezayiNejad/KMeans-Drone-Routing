@@ -12,8 +12,7 @@ def k_means_clustering(k, coordinates: list[Coordinate]):
     centers = random.sample(coordinates, k)
     
     while True:
-        for i in range(k):
-            clusters[i] = []
+        clusters = {i: [] for i in range(k)}
         
         # Decide class memberships
         for coordinate_idx, coordinate in enumerate(coordinates):
@@ -25,19 +24,24 @@ def k_means_clustering(k, coordinates: list[Coordinate]):
                     shortest_dist = distance_to_center
                     cluster_idx = center_idx
             clusters[cluster_idx].append(coordinate_idx)
-
-        if clusters == old_clusters:
-            break
         
         # Calculate new centers
         for cluster_idx, cluster_coords in clusters.items():
-            x_sum = 0
-            y_sum = 0
-            for coordinate_idx in cluster_coords:
-                x_sum += coordinates[coordinate_idx].get_x()
-                y_sum += coordinates[coordinate_idx].get_y()
-            centers[cluster_idx] = Coordinate(x_sum / len(cluster_coords), y_sum / len(cluster_coords))
-        old_clusters = clusters
+            if len(cluster_coords) == 0:
+                centers[cluster_idx] = random.choice(coordinates)
+            else:
+                x_sum = 0
+                y_sum = 0
+                for coordinate_idx in cluster_coords:
+                    x_sum += coordinates[coordinate_idx].get_x()
+                    y_sum += coordinates[coordinate_idx].get_y()
+                centers[cluster_idx] = Coordinate(x_sum / len(cluster_coords), y_sum / len(cluster_coords))
+        
+        # Convergence check
+        if clusters == old_clusters:
+            break
+
+        old_clusters = {k:v for k, v in clusters.items()}
     return centers, clusters
 
 def calculate_squared_error(centers, clusters, coordinate_list):
@@ -116,6 +120,7 @@ def main():
                 centers_bsf = centers
                 clusters_bsf = clusters
         # Route Finding
+        # Duration is number of seconds to iterate, chance is probability of skipping best neighbor
         results = find_routes(centers_bsf, clusters_bsf, coordinates, duration=20, chance=0.10)
         servings_per_drone = [len(val) for val in clusters_bsf.values()]
         drone_routes = []
