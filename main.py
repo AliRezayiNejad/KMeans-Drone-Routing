@@ -52,26 +52,29 @@ def calculate_squared_error(centers, clusters, coordinate_list):
             objective += (cluster_center.distanceTo(coordinate_list[coordinate_idx])**2)
     return objective
 
-def _find_nearest_neighbor(target: Coordinate, neighbors: list[int], visited: set[int], coordinate_list: list[Coordinate], chance):
-    nearest_neighbor = None
-    for coord_idx in neighbors:
-        if coord_idx not in visited:
-            nearest_neighbor = coord_idx
+def _find_nearest_neighbor(target: Coordinate, neighbors: list[int], coordinate_list: list[Coordinate], skip_chance):
+    if len(neighbors) == 0:
+        return None, float('inf')
+    nearest_neighbor = neighbors[0]
     dist_bsf = target.distanceTo(coordinate_list[nearest_neighbor])
     for coord_idx in neighbors:
         dist = target.distanceTo(coordinate_list[coord_idx])
-        if dist < dist_bsf and coord_idx not in visited and random.random() > chance:
+        if dist < dist_bsf and random.random() > skip_chance:
             dist_bsf = dist
             nearest_neighbor = coord_idx
     return nearest_neighbor, dist_bsf
 
 def _find_route(start, coordinate_indexes, coordinate_list, chance):
     # Include distance from landing pad to first point in route
-    first, distance = _find_nearest_neighbor(start, coordinate_indexes, set(), coordinate_list, 0)
+    first, distance = _find_nearest_neighbor(start, coordinate_indexes, coordinate_list, chance)
     route = [first]
     visited = set(route)
     while len(visited) < len(coordinate_indexes):
-        nn, nn_dist = _find_nearest_neighbor(coordinate_list[route[-1]], coordinate_indexes, visited, coordinate_list, chance)
+        unvisited_neighbors = [coordinate_index for coordinate_index in coordinate_indexes if coordinate_index not in visited]
+        nn, nn_dist = _find_nearest_neighbor(coordinate_list[route[-1]], unvisited_neighbors, coordinate_list, chance)
+        # No neighbors found
+        if nn is None:
+            break
         distance += nn_dist
         route.append(nn)
         visited.add(nn)
