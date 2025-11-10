@@ -4,6 +4,14 @@ from utils import *
 from coordinate import Coordinate
 from solution import Solution
 
+def calculate_cluster_center(cluster_coordinates: list[Coordinate]) -> Coordinate:
+    num_coordinates = len(cluster_coordinates)
+    x_sum = sum([coordinate.get_x() for coordinate in cluster_coordinates])
+    y_sum = sum([coordinate.get_y() for coordinate in cluster_coordinates])
+    center_x = x_sum / num_coordinates
+    center_y = y_sum / num_coordinates
+    return Coordinate(center_x, center_y)
+
 def k_means_clustering(k, coordinates: list[Coordinate]):
     clusters = {}
     old_clusters = None
@@ -26,16 +34,13 @@ def k_means_clustering(k, coordinates: list[Coordinate]):
             clusters[cluster_idx].append(coordinate_idx)
         
         # Calculate new centers
-        for cluster_idx, cluster_coords in clusters.items():
-            if len(cluster_coords) == 0:
+        for cluster_idx, cluster_coordinate_indexes in clusters.items():
+            if len(cluster_coordinate_indexes) == 0:
                 centers[cluster_idx] = random.choice(coordinates)
             else:
-                x_sum = 0
-                y_sum = 0
-                for coordinate_idx in cluster_coords:
-                    x_sum += coordinates[coordinate_idx].get_x()
-                    y_sum += coordinates[coordinate_idx].get_y()
-                centers[cluster_idx] = Coordinate(x_sum / len(cluster_coords), y_sum / len(cluster_coords))
+                cluster_coordinates = [coordinate[coordinate_idx] for coordinate_idx in cluster_coordinate_indexes]
+                new_cluster_center = calculate_cluster_center(cluster_coordinates)
+                centers[cluster_idx] = new_cluster_center
         
         # Convergence check
         if clusters == old_clusters:
