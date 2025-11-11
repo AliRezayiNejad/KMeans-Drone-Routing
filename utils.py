@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plot
+import numpy as np
 import os
 from coordinate import Coordinate
 from datetime import datetime
@@ -52,9 +54,9 @@ def parse_input(file_name: str) -> list[Coordinate]:
                     x = float(coordinate_str[0])
                     y = float(coordinate_str[1])
 
-                    if x < 0 or y < 0:
-                        print(f"ERROR: Negative coordinates at line {index}")
-                        exit()
+                    # if x < 0 or y < 0:        # negative coordinates allowed per new information in Nov 9 email from Mr. Keogh
+                    #     print(f"ERROR: Negative coordinates at line {index}")
+                    #     exit()
                 except ValueError:
                     print(f"ERROR: Improper coordinate at line {index}")
                     exit()
@@ -118,3 +120,74 @@ def get_root_name(file_name: str) -> str:
     file_name_w_ext = os.path.basename(file_name)
     root_name = os.path.splitext(file_name_w_ext)[0]
     return root_name
+
+# TODO: Create convert_solution_list() function which converts SOLUTION file to list of indexes 
+# corresponding to order of points visited in SOLUTION.
+# This will be utilized the same way as best_route in P1
+# RETURNS list[int]
+def convert_solution_list(file_name) -> list[int]:
+    return [0, 0] # stub
+
+# takes list of file_names and creates a unified "overall solution jpeg". Returns true if successful
+def generate_overall_graph(file_names:list[str], input_name) -> bool:
+    num_drones = len(file_names)
+    
+    drone_routes = []
+
+    plot_color_dict = ["pink", "green", "blue", "yellow"]
+
+    for index in num_drones:
+        file_name = file_names[index]
+        coordinates = parse_input(file_name)
+        # TODO: Create convert_solution_list() function which converts SOLUTION file to list of indexes 
+        # corresponding to order of points visited in SOLUTION.
+        # This will be utilized the same way as best_route in P1
+        
+        solution_coordinates = convert_solution_list(file_name) # NOTE: needs above implementation
+
+        x_coordinates, y_coordinates = get_plot_route(solution_coordinates)
+        plot.plot(x_coordinates, y_coordinates, color=f"{plot_color_dict[index]}", marker=f"Drone #{index+1}",)
+            
+    plot.title(input_name[:-4] + " Visualization")
+    plot.savefig(f"{input_name}_OVERALL_SOLUTION.jpeg")
+
+    return False
+
+
+def get_plot_route(route: list[int], coordinates: list[Coordinate]) -> tuple[list[int], list[int]]:
+    # need to isolate the x and y coordinates for matplot
+    x_coordinates = []
+    y_coordinates = []
+    for coord_idx in route:
+        x_coordinates.append(coordinates[coord_idx-1].get_x())
+        y_coordinates.append(coordinates[coord_idx-1].get_y())
+    return tuple[x_coordinates, y_coordinates]
+
+
+# Adapted from Dr. Keogh's Slides sent via email on 11/9/2025
+def generate_circle_points(center: Coordinate, radius, num_points) -> tuple[list[float], list[float]]:
+    
+    x_center, y_center = center.get_x(), center.get_y()
+
+    # Generate random angles
+    angles = np.random.rand(num_points) * 2 * np.pi
+
+    # Generate points from angles
+    x_coordinates = radius * np.cos(angles) + x_center
+    y_coordinates = radius * np.sin(angles) + y_center
+    
+    return x_coordinates, y_coordinates
+
+def plot_circles(centers: list[Coordinate], x_coordinates: list[list[float]], y_coordinates: list[list[float]], radii: int):
+    # Plot for confirmation + report figures
+    plot.figure()
+    for idx, center in enumerate(centers):
+        x_center = center.get_x()
+        y_center = center.get_y()
+        circle_angles = np.linspace(0, 2*np.pi, 720)
+        circle_x = radii * np.cos(circle_angles) + x_center
+        circle_y = radii * np.sin(circle_angles) + y_center
+        plot.plot(x_coordinates[idx], y_coordinates[idx], 'ro')
+        plot.plot(circle_x, circle_y, 'b-')
+    plot.axis('equal')
+    plot.show()
