@@ -35,7 +35,7 @@ def k_means_clustering(k, coordinates: list[Coordinate]):
             if len(cluster_coordinate_indexes) == 0:
                 centers[cluster_idx] = random.choice(coordinates)
             else:
-                cluster_coordinates = [coordinate[coordinate_idx] for coordinate_idx in cluster_coordinate_indexes]
+                cluster_coordinates = [coordinates[coordinate_idx] for coordinate_idx in cluster_coordinate_indexes]
                 new_cluster_center = calculate_cluster_center(cluster_coordinates)
                 centers[cluster_idx] = new_cluster_center
         
@@ -152,7 +152,7 @@ def main():
     if export_results[0]: # successful export
         output = "Writing "
         solution_num = 1
-        for file_name, in file_names:
+        for file_name in file_names:
             output += f"{file_name}"
             if solution_num <= solution_choice: # handle formatting for single vs multiple exported files
                 output += ", "
