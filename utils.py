@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plot
+import numpy as np
 import os
 from coordinate import Coordinate
 from datetime import datetime
@@ -112,3 +114,31 @@ def write_to_file(locations:list[int], file_name:str) -> bool:
     except FileNotFoundError:
         print(f"ERROR: {file_name} could not be opened")
         return False
+
+# Adapted from Dr. Keogh's Slides sent via email on 11/9/2025
+def generate_circle_points(center: Coordinate, radius, num_points) -> tuple[list[float], list[float]]:
+    
+    x_center, y_center = center.get_x(), center.get_y()
+
+    # Generate random angles
+    angles = np.random.rand(num_points) * 2 * np.pi
+
+    # Generate points from angles
+    x_coordinates = radius * np.cos(angles) + x_center
+    y_coordinates = radius * np.sin(angles) + y_center
+    
+    return x_coordinates, y_coordinates
+
+def plot_circles(centers: list[Coordinate], x_coordinates: list[list[float]], y_coordinates: list[list[float]], radii: int):
+    # Plot for confirmation + report figures
+    plot.figure()
+    for idx, center in enumerate(centers):
+        x_center = center.get_x()
+        y_center = center.get_y()
+        circle_angles = np.linspace(0, 2*np.pi, 720)
+        circle_x = radii * np.cos(circle_angles) + x_center
+        circle_y = radii * np.sin(circle_angles) + y_center
+        plot.plot(x_coordinates[idx], y_coordinates[idx], 'ro')
+        plot.plot(circle_x, circle_y, 'b-')
+    plot.axis('equal')
+    plot.show()
