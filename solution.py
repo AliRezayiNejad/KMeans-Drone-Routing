@@ -1,7 +1,6 @@
 from coordinate import Coordinate
 from utils import *
 from os import makedirs as makedir
-import matplotlib.pyplot as plot # pip install matplotlib
 
 # encapsulates the "solutions"
 class Solution:
@@ -88,9 +87,6 @@ class Solution:
 
         # hide axes
         plot.subplot().set_axis_off()
-
-        # 25% buffers around points
-        plot.margins(x=0.25, y=0.25)
         
         for i in range(len(self.drone_routes)):
             x_coordinates = []
@@ -101,6 +97,10 @@ class Solution:
             plot.plot(x_coordinates, y_coordinates, color=route_colors[i], marker="None")
             plot.plot(self.landing_pads[i].get_x(), self.landing_pads[i].get_y(), color=landing_pad_colors[i], marker="o")
         plot.title(file_name[:-4] + " Visualization")
+
+        # 25% buffers around points... doesn't seem to work yet
+        # plot.margins(0.75)
+
         file_name = directory + "/" + file_name
         try:
             plot.savefig(file_name)
