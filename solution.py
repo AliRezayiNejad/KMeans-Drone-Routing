@@ -78,8 +78,8 @@ class Solution:
 
         # 1950 x 1950 minimum
         dpi = 200
-        min_w_pixels = 1950
-        min_h_pixels = 1950
+        min_w_pixels = 1920
+        min_h_pixels = 1920
         figsize_w = min_w_pixels / dpi
         figsize_h = min_h_pixels / dpi
 
