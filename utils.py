@@ -5,6 +5,7 @@ from coordinate import Coordinate
 from datetime import datetime
 
 def valid_file(file_name: str) -> bool:
+
     # must be txt file
     if file_name[-4:] != ".txt":
         print("ERROR: File must be .txt type.")
@@ -115,6 +116,10 @@ def write_to_file(locations:list[int], file_name:str) -> bool:
         print(f"ERROR: {file_name} could not be opened")
         return False
     
+def get_root_name(file_name: str) -> str:
+    file_name_w_ext = os.path.basename(file_name)
+    root_name = os.path.splitext(file_name_w_ext)[0]
+    return root_name
 
 # TODO: Create convert_solution_list() function which converts SOLUTION file to list of indexes 
 # corresponding to order of points visited in SOLUTION.
