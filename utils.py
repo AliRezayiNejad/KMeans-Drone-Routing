@@ -190,4 +190,6 @@ def plot_circles(centers: list[Coordinate], x_coordinates: list[list[float]], y_
         plot.plot(x_coordinates[idx], y_coordinates[idx], 'ro')
         plot.plot(circle_x, circle_y, 'b-')
     plot.axis('equal')
+    plot.xlabel("X")
+    plot.ylabel("Y")
     plot.show()
