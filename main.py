@@ -130,8 +130,9 @@ def main():
     print(f"There are {num_coordinates} nodes: Solutions will be available in five minutes ({est_time})")
 
     solutions = []
+    max_drones = min(num_coordinates, 4)
     # Find routes for 1 to 4 drones
-    for num_drones in range(1, 5):
+    for num_drones in range(1, max_drones+1):
         # Track best clusters
         centers_bsf = None
         clusters_bsf = None
@@ -167,8 +168,8 @@ def main():
 
     # Output Handling
     # TODO: Add visual route output
-    solution_choice = int(input("Please select your choice 1 to 4: "))
-    if solution_choice < 1 or solution_choice > 4:
+    solution_choice = int(input(f"Please select your choice 1 to {max_drones}: "))
+    if solution_choice < 1 or solution_choice > max_drones:
         print("Invalid choice")
         exit()
     chosen_solution:Solution = solutions[solution_choice-1]
